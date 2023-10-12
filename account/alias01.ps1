@@ -24,7 +24,7 @@ else {
 
 $spiname = ($sub).Replace('sub', 'sp')
 
-# Create the Service Principal
+# Create Service Principal
 $spipasswd = az ad sp create-for-rbac -n $spiname --query "password" -o tsv
 
 # Query the Application ID of the Service Principal and Store it in a variable:-
@@ -41,8 +41,19 @@ $env:AZURE_DEVOPS_EXT_AZURE_RM_SERVICE_PRINCIPAL_KEY = $spipasswd
 az devops configure --defaults organization=$devopsOrg project=$devopsProjectName
     
 # Create DevOps Service Connection:-
-az devops service-endpoint azurerm create --azure-rm-service-principal-id $spiID --azure-rm-subscription-id $newSub --azure-rm-subscription-name $sub --azure-rm-tenant-id $tenantID --name $spiname --org $devopsOrg --project $devopsProjectName
-    
+$endpointId = az devops service-endpoint list --org $devopsOrg --project $devopsProjectName --query "[?name=='$spiname'].id" -o tsv 
+if ($endpointId) {
+    Write-Output "Found: $endpointId"
+    Write-Output "Deleting: $endpointId"
+    az devops service-endpoint delete --id $endpointId --yes
+    Start-Sleep -Seconds 15
+    Write-Output "Creating service connection"
+    az devops service-endpoint azurerm create --azure-rm-service-principal-id $spiID --azure-rm-subscription-id $newSub --azure-rm-subscription-name $sub --azure-rm-tenant-id $tenantID --name $spiname --org $devopsOrg --project $devopsProjectName
+}else{
+    Write-Output "Not Found. Creating service connection"
+    az devops service-endpoint azurerm create --azure-rm-service-principal-id $spiID --azure-rm-subscription-id $newSub --azure-rm-subscription-name $sub --azure-rm-tenant-id $tenantID --name $spiname --org $devopsOrg --project $devopsProjectName
+}
+
 # Grant Access to all Pipelines to the Newly Created DevOps Service Connection:-
 $srvEndpointID = az devops service-endpoint list --query "[?name=='$spiname'].id" -o tsv
 #az devops service-endpoint update --id $srvEndpointID --enable-for-all
