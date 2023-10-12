@@ -6,12 +6,12 @@ param (
     [String]$devopsProjectName
 )
 
-$billingAccounts = 'xxxxxxx-8228-43a1-acf8-32cb5b4c5d92:b5b6fef4-e666-4fd2-b303-xxxxxxx_2019-05-31'
+$billingAccounts = 'xxxx-8228-43a1-acf8-32cb5b4c5d92:b5b6fef4-e666-4fd2-b303-xxx_2019-05-31'
 $billingProfile = 'XXXX-U5HS-BG7-XXX'
 $invoiceSections = 'XXXX-QLVW-PJA-XXX'
 $billingScope = "/providers/Microsoft.Billing/billingAccounts/$billingAccounts/billingProfiles/$billingProfile/invoiceSections/$invoiceSections"
 $rbac = "Owner"
-$devopsOrg = "https://dev.azure.com/xxxx"
+$devopsOrg = "https://dev.azure.com/sxxx"
 $tenantID = az account show --query "tenantId" -o tsv
 
 #Create subscriptions
@@ -22,15 +22,17 @@ else {
     az account alias create --name $sub --billing-scope $billingScope --display-name $sub --workload 'DevTest'
 }
 
-$newSub = az account alias show --name $sub --query "properties.subscriptionId" -o tsv
-
-#Add subscriptions to management group
-Start-Sleep -Seconds 10
-az account management-group subscription add --name "mg-landingzones-01" --subscription $newSub
-
 $spiname = ($sub).Replace('sub', 'sp')
 
-$spipasswd = az ad sp create-for-rbac -n $spiname --query "password" -o tsv
+$appId = az ad app list --query "[?displayName=='$spiname'].id" --all -o tsv
+
+if ($appId) {
+    Write-Output "Found: $appId"
+}
+else {
+    Write-Output "Not Found"
+    $spipasswd = az ad sp create-for-rbac -n $spiname --query "password" -o tsv
+}
 
 # Query the Application ID of the Service Principal and Store it in a variable:-
 $spiID = az ad sp list --display-name $spiname --query [].appId -o tsv
@@ -51,3 +53,7 @@ az devops service-endpoint azurerm create --azure-rm-service-principal-id $spiID
 $srvEndpointID = az devops service-endpoint list --query "[?name=='$spiname'].id" -o tsv
 #az devops service-endpoint update --id $srvEndpointID --enable-for-all
 $srvEndpointID
+
+#Add subscriptions to management group
+$newSub = az account alias show --name $sub --query "properties.subscriptionId" -o tsv
+az account management-group subscription add --name "mg-landingzones-01" --subscription $newSub
