@@ -3,7 +3,7 @@ $devopsProjectName = "Infrastruktur"
 $devopsOrg = "https://dev.azure.com/xxx"
 $spiname = "sp-infra-labb-01"
 $spiID = "xxx-d622-4abd-8609-xxx"
-$newSub = "xxxx-60e3-4a3c-b73b-xxxx"
+$newSub = "xxxx-60e3-4a3c-b73b-xxx"
 $sub = "sub-infra-labb-01"
 $env:AZURE_DEVOPS_EXT_AZURE_RM_SERVICE_PRINCIPAL_KEY = "p@ssWord01"
 
