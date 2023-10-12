@@ -6,12 +6,12 @@ param (
     [String]$devopsProjectName
 )
 
-$billingAccounts = 'xxxx-8228-43a1-acf8-32cb5b4c5d92:b5b6fef4-e666-4fd2-b303-xxx_2019-05-31'
-$billingProfile = 'XXXX-U5HS-BG7-XXX'
-$invoiceSections = 'XXXX-QLVW-PJA-XXX'
+$billingAccounts = 'xxxx-8228-43a1-acf8-32cb5b4c5d92:b5b6fef4-e666-4fd2-b303-xxxxx_2019-05-31'
+$billingProfile = 'xxxx-U5HS-BG7-xxx'
+$invoiceSections = 'xxx-QLVW-PJA-xxxx'
 $billingScope = "/providers/Microsoft.Billing/billingAccounts/$billingAccounts/billingProfiles/$billingProfile/invoiceSections/$invoiceSections"
 $rbac = "Owner"
-$devopsOrg = "https://dev.azure.com/sxxx"
+$devopsOrg = "https://dev.azure.com/xxx"
 $tenantID = az account show --query "tenantId" -o tsv
 
 #Create subscriptions
@@ -24,20 +24,14 @@ else {
 
 $spiname = ($sub).Replace('sub', 'sp')
 
-$appId = az ad app list --query "[?displayName=='$spiname'].id" --all -o tsv
-
-if ($appId) {
-    Write-Output "Found: $appId"
-}
-else {
-    Write-Output "Not Found"
-    $spipasswd = az ad sp create-for-rbac -n $spiname --query "password" -o tsv
-}
+# Create the Service Principal
+$spipasswd = az ad sp create-for-rbac -n $spiname --query "password" -o tsv
 
 # Query the Application ID of the Service Principal and Store it in a variable:-
 $spiID = az ad sp list --display-name $spiname --query [].appId -o tsv
     
 # Assign the Service Principal, "Contributor" RBAC on Subscription Level:-
+$newSub = az account alias show --name $sub --query "properties.subscriptionId" -o tsv
 az role assignment create --assignee "$spiID" --role "$rbac" --scope "/subscriptions/$newSub"
     
 #Set Service Principal Secret as an Environment Variable for creating Azure DevOps Service Connection:-
@@ -55,5 +49,4 @@ $srvEndpointID = az devops service-endpoint list --query "[?name=='$spiname'].id
 $srvEndpointID
 
 #Add subscriptions to management group
-$newSub = az account alias show --name $sub --query "properties.subscriptionId" -o tsv
 az account management-group subscription add --name "mg-landingzones-01" --subscription $newSub
