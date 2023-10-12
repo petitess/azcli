@@ -1,5 +1,5 @@
 $spiname = "sp-serviceaccess-prod-01"
-$appId = az ad app list --query "[?displayName=='$spiname'].id" -o tsv
+$appId = az ad app list --query "[?displayName=='$spiname'].id" --all -o tsv
 
 if ($app) {
     Write-Output "Found: $appId"
