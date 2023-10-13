@@ -1,3 +1,8 @@
+$devopsOrg = "https://dev.azure.com/xxxse"
+$devopsProjectName = "Infrastruktur"
+
+az devops configure --defaults organization=$devopsOrg project=$devopsProjectName
+
 #az devops user list	| Out-File users.json
 
 #az devops security group list --scope organization | Out-File groups.json
