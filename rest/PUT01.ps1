@@ -21,7 +21,6 @@ az rest --url "https://management.azure.com/subscriptions/$subId/resourcegroups/
 $subName = "sub-infra-dev-01"
 $subId = az account list --query "[?name=='$subName'].id" -o tsv
 $rgName = "rg-xxx-spoke-dev-we-01"
-$token = az account get-access-token --query accessToken --output tsv
 $body = ConvertTo-Json -Depth 10  @{
     location = "westeurope"
 }
