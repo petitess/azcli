@@ -6,16 +6,16 @@ param (
     [String]$devopsProjectName
 )
 
-$billingAccounts = 'xxxx-8228-43a1-acf8-32cb5b4c5d92:b5b6fef4-e666-4fd2-b303-xxxx'
+$billingAccounts = 'xxxxx-8228-43a1-acf8-32cb5b4c5d92:b5b6fef4-e666-4fd2-b303-xxxxx'
 $billingProfile = 'xxx-U5HS-BG7-xxx'
-$invoiceSections = 'xxx-QLVW-PJA-xxx'
+$invoiceSections = 'xxxx-QLVW-PJA-xxx'
 $billingScope = "/providers/Microsoft.Billing/billingAccounts/$billingAccounts/billingProfiles/$billingProfile/invoiceSections/$invoiceSections"
 $rbac = "Owner"
 $devopsOrg = "https://dev.azure.com/xxx"
-$devopsOrgName = "xxxx"
+$devopsOrgName = "xxx"
 $projectId = az devops project show --project $devopsProjectName --query "id" --output tsv
 $tenantID = az account show --query "tenantId" -o tsv
-$issuer = "https://vstoken.dev.azure.com/xxxx-823d-4a0d-9191-xxx"
+$issuer = "https://vstoken.dev.azure.com/xxxx-823d-4a0d-9191-xxxx"
 $token = az account get-access-token --query accessToken --output tsv
 
 #Create subscriptions
@@ -65,8 +65,8 @@ else {
 }
 
 # Create DevOps Service Connection with Federated Credentials:-
-$serviceEndpointId = az devops service-endpoint list --query "[?name=='$spiname'].id" -o tsv
-$authorization = az devops service-endpoint list --query "[?name=='$spiname'].authorization.scheme" -o tsv
+$serviceEndpointId = az devops service-endpoint list --org $devopsOrg --project $devopsProjectName --query "[?name=='$spiname'].id" -o tsv
+$authorization = az devops service-endpoint list --org $devopsOrg --project $devopsProjectName --query "[?name=='$spiname'].authorization.scheme" -o tsv
 if ($serviceEndpointId) {
     Write-Output "Found service endpoint: $serviceEndpointId"
     if ($authorization -notmatch "WorkloadIdentityFederation") {
