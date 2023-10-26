@@ -8,3 +8,6 @@ if ($endpoint) {
 }else{
     Write-Output "Not Found"
 }
+
+###
+az devops service-endpoint list --org $devopsOrg --project $project --query "[].name"
