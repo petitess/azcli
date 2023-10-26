@@ -21,7 +21,7 @@ foreach ($Product in $Products) {
     $policyValidation = az repos policy list --query "[?settings.displayName=='$pipelineName']" -o tsv
 
     if ($null -eq $policyValidation) {
-        Write-Output "Creating Build Validation policy."
+        Write-Output "Creating Build Validation policy. $pipelineName."
         az repos policy build create --blocking true `
             --branch "refs/heads/main" `
             --build-definition-id $buildId `
@@ -34,6 +34,6 @@ foreach ($Product in $Products) {
             --path-filter "/ci/ci.yml;/iac/*"
     }
     else {
-        Write-Output "Build Validation policy already exists."
+        Write-Output "Build Validation policy already exists. $pipelineName."
     }
 }
