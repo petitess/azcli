@@ -5,10 +5,10 @@ $System = 'spoke'
 
 foreach ($Product in $Products) {
     if (!(az pipelines show  --name "$Product-$System - CI" 2> $null)) {
-        az pipelines create --name "$Product-$System - CI" --yml-path "landingzones/$Product/ci.yml" --folder-path $Product
+        az pipelines create --name "$Product-$System - CI" --yml-path "landingzones/$Product/ci.yml" --folder-path $Product --branch main
     }
 
     if (!(az pipelines show  --name "$Product-$System - CD" 2> $null)) {
-        az pipelines create --name "$Product-$System - CD" --yml-path "landingzones/$Product/cd.yml" --folder-path $Product
+        az pipelines create --name "$Product-$System - CD" --yml-path "landingzones/$Product/cd.yml" --folder-path $Product --branch main
     }
 }
