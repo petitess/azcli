@@ -7,7 +7,7 @@ az logout
 az account set --name
 ```
 ```cs
-$subName = "sub-b3care-test-01"
+$subName = "sub-xxx-test-01"
 $subId = az account list --query "[?name=='$subName'].id" -o tsv
 $Timestamp = Get-Date -Format 'yyyy-MM-dd'
 az deployment sub 'create' `
