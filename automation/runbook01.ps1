@@ -3,7 +3,7 @@ Set-Location $PSScriptRoot
 $Date = Get-Date -Format "yyyy-MM-dd"
 $Temp = (Get-date).AddDays(1)
 $Tomorrow = Get-Date $Temp -Format "yyyy-MM-dd"
-$SubId = "xxxx-e3df-4ea1-b956-8c7a43b119a0"
+$SubId = "xxx-e3df-4ea1-b956-8c7a43b119a0"
 $Rg = 'rg-aa-prod-01'
 $Aa = "aa-prod-01"
 
@@ -14,7 +14,7 @@ $Runbooks | ForEach-Object {
         --automation-account-name $Aa `
         --name $_.Name `
         --resource-group $Rg `
-        --description "Updated $Timestamp" `
+        --description "Updated $(Get-Date)" `
         --type 'PowerShell'
 
     az automation runbook replace-content `
