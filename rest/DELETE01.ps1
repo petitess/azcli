@@ -1,0 +1,2 @@
+$JobId = az rest --uri "https://management.azure.com/subscriptions/$subId/resourcegroups/$Rg/providers/Microsoft.Automation/automationAccounts/$Aa/jobSchedules?api-version=2023-11-01" --method GET --query "value[?properties.runbook.name=='run-removeResourceGroups01'].properties.jobScheduleId" -o tsv
+az rest --uri "https://management.azure.com/subscriptions/$subId/resourcegroups/$Rg/providers/Microsoft.Automation/automationAccounts/$Aa/jobSchedules/$($JobId)?api-version=2023-11-01" --method DELETE
