@@ -43,6 +43,27 @@ az automation schedule create `
     --resource-group $Rg `
     --time-zone "Europe/Stockholm"
 }
+
+$schedulesWeek = @{20 = 'Monday', 'Saturday'; 15 = "Friday"}
+$schedulesWeek.GetEnumerator() | ForEach-Object {
+    $body = ConvertTo-Json -Depth 100  @{
+        properties = @{
+            startTime = (((Get-Date) -gt ($Date+ " " + ($_.Key-2) +":50")) ? ($Tomorrow + " " + ($_.Key-1) +":00") : ($Date+ " " + ($_.Key-1) +":00"))
+            interval = 1
+            frequency = "Week"
+            timeZone = "Europe/Stockholm"
+            advancedSchedule = @{
+                weekDays = @($_.Value)
+            }
+        }
+    }
+    
+    Invoke-RestMethod  -Method PUT `
+    -Uri "https://management.azure.com/subscriptions/$subId/resourcegroups/$Rg/providers/Microsoft.Automation/automationAccounts/$Aa/schedules/sch-$($_.Key)-week?api-version=2023-11-01" `
+    -Headers @{ Authorization = "Bearer $token"; "Content-Type" = "application/json" } `
+    -Body $body
+    }
+
 #Link schedules
 $LinkSchedule = @(
     [pscustomobject]@{runbookName = 'run-removeResourceGroups01'; scheduleName = 'sch-21-daily' }
