@@ -4,7 +4,9 @@ az account show
 az account list
 az login
 az logout
-az account set --name
+$SubId = az account subscription list --query "[?displayName=='sub-infra-dev-01' && state=='Enabled'].id" -o tsv
+$SubName = az account subscription list --query "[?displayName=='sub-infra-dev-01'].displayName" -o tsv
+az account set --name $SubName
 ```
 ```cs
 $subName = "sub-xxx-test-01"
