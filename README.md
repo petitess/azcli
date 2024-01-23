@@ -40,4 +40,5 @@ az --query "graphGroups[?displayName=='Project Collection Administrators'].descr
 az --query "graphGroups[?principalName=='[orgxxx]\Project Collection Administrators'].descriptor" -o tsv
 az --query "graphGroups[?contains(principalName,'Project Collection Administrators')].descriptor" -o tsv
 az --query [?privateLinkServiceConnectionState.status=='Approved'].id
+az --query "[?displayName=='sub-infra-dev-01' && state=='Enabled'].id" -o tsv
 ```
