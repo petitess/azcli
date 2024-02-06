@@ -39,6 +39,7 @@ az --query "graphGroups[?contains(principalName,'XXX')].{principalName: principa
 az --query "graphGroups[?displayName=='Project Collection Administrators'].descriptor" -o tsv
 az --query "graphGroups[?principalName=='[orgxxx]\Project Collection Administrators'].descriptor" -o tsv
 az --query "graphGroups[?contains(principalName,'Project Collection Administrators')].descriptor" -o tsv
+az --query "[?contains(displayName, 'grp-rbac-sub-infra-prod-01-reader')]" --output tsv
 az --query "[?properties.privateLinkServiceConnectionState.status=='Pending'].id"
 az --query "[?displayName=='sub-infra-dev-01' && state=='Enabled'].id" -o tsv
 ```
