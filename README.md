@@ -42,4 +42,5 @@ az --query "graphGroups[?contains(principalName,'Project Collection Administrato
 az --query "[?contains(displayName, 'grp-rbac-sub-infra-prod-01-reader')]" --output tsv
 az --query "[?properties.privateLinkServiceConnectionState.status=='Pending'].id"
 az --query "[?displayName=='sub-infra-dev-01' && state=='Enabled'].id" -o tsv
+az --query "[?definition.name=='ssg-labb' && result=='canceled' && contains(startTime, '$(Get-Date -Format "yyyy-MM-dd")')]"
 ```
