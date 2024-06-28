@@ -7,6 +7,15 @@ az logout
 $SubId = az account subscription list --query "[?displayName=='sub-infra-dev-01' && state=='Enabled'].id" -o tsv
 $SubName = az account subscription list --query "[?displayName=='sub-infra-dev-01'].displayName" -o tsv
 az account set --name $SubName
+
+az login --service-principal -u "abc" -p "abc" --tenant "abc"
+$Token = az account get-access-token --scope "2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default" --query accessToken --output tsv
+$URL = "https://adb-abc.azuredatabricks.net/api/2.0/clusters/list"
+$Headers = @{
+    "Authorization" = "Bearer $Token"
+    "Content-type" = "application/json"
+}
+Invoke-RestMethod -Method GET -URI $URL -Headers $Headers
 ```
 ## deployment
 ```pwsh
