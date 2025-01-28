@@ -31,6 +31,19 @@ az deployment sub 'create' `
     --no-prompt `
     --output table
 ```
+## add global admin
+```pwsh
+$User = az ad user show --id "adm.karol@abc.se" --query "id" --output tsv
+$GlobalAdmin = '62e90394-69f5-4237-9190-012177145e10'
+
+$Body="{'principalId':'$user', 'roleDefinitionId': '$GlobalAdmin', 'directoryScopeId': '/'}"  
+az rest --method POST --uri https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments --headers "Content-Type=application/json" --body $Body
+
+$RoleId = az rest --method GET --uri https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments --headers "Content-Type=application/json" --query "value[?principalId=='$user' && roleDefinitionId=='$GlobalAdmin'].id" --output tsv
+if($null -ne $RoleId) {
+    az rest --method DELETE --uri https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments/$RoleId --headers "Content-Type=application/json"
+}
+```
 ## query
 ```pwsh
 az --query "[].name" -o tsv
