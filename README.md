@@ -65,4 +65,5 @@ az --query "[?contains(displayName, 'grp-rbac-sub-infra-prod-01-reader')]" --out
 az --query "[?properties.privateLinkServiceConnectionState.status=='Pending'].id"
 az --query "[?displayName=='sub-infra-dev-01' && state=='Enabled'].id" -o tsv
 az --query "[?definition.name=='ssg-labb' && result=='canceled' && contains(startTime, '$(Get-Date -Format "yyyy-MM-dd")')]"
+az vm image list  --publisher MicrosoftWindowsServer --offer WindowsServer --location westeurope -o tsv --all --query "[?contains(sku, '2025')]"
 ```
