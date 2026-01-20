@@ -55,7 +55,7 @@ az --query "[?name=='devops'].id" -o tsv
 az --query [].appId -o tsv
 az --query "graphGroups" -o tsv
 az --query "graphGroups[?contains(principalName,'Infrastruktur')].{principalName: principalName}" -o tsv
-az --query "graphGroups" -o tsv
+az --query "[?contains(name,'-prod-') && name!='sub-platform-prod-01']"
 az --query "graphGroups[].{displayName:displayName, descriptor:descriptor}" --output table
 az --query "graphGroups[?contains(principalName,'XXX')].{principalName: principalName}" -o tsv
 az --query "graphGroups[?displayName=='Project Collection Administrators'].descriptor" -o tsv
