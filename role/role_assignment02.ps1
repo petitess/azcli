@@ -13,7 +13,7 @@ $Subscription[0] | ForEach-Object {
     if ($Reader.Count -eq 0) {
         Write-Output "Assigning Reader role: $($SubName)"
 
-        az role assignment create --assignee $VmCloudockitObjectId --role "Reader" --scope "/subscriptions/$($_.id)"
+        az role assignment create --assignee $VmCloudockitObjectId --role "Reader" --scope "/subscriptions/$($_.id)" --query "id"
     }
 
     $BillingReader = az role assignment list --assignee-object-id $VmCloudockitObjectId --query "[?roleDefinitionName=='Billing Reader' && scope=='/subscriptions/$($_.id)']" | ConvertFrom-Json | ForEach-Object {
@@ -23,6 +23,6 @@ $Subscription[0] | ForEach-Object {
 
     if ($BillingReader.Count -eq 0) {
         Write-Output "Assigning Billing Reader role: $($SubName)"
-        az role assignment create --assignee $VmCloudockitObjectId --role "Billing Reader" --scope "/subscriptions/$($_.id)"
+        az role assignment create --assignee $VmCloudockitObjectId --role "Billing Reader" --scope "/subscriptions/$($_.id)" --query "id"
     }
 }
