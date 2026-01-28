@@ -7,38 +7,24 @@ param (
     [Alias('Service Connection Name')]
     [String]$spName
 )
-$SubName  = "sub-infra-dev-01"
-# $rbac = "Owner"
+$SubName = "sub-infra-dev-01"
+$rbac = "Owner"
 $devopsOrg = "https://dev.azure.com/abcd"
-$devopsOrgName = "ssgse"
-$projectId = az devops project show --project $DevopsProjectName --query "id" --output tsv
+$devopsOrgName = "abcdse"
+$projectId = az devops project show --project $DevopsProjectName --org $devopsOrg --query "id" --output tsv
 $tenantID = az account show --query "tenantId" -o tsv
-$issuer = "https://vstoken.dev.azure.com/20a69f6e-823d-4a0d-9191-c6832fa0baa0"
 $token = az account get-access-token --query accessToken --output tsv
 
 # Create Service Principal
 $appId = az ad app create --display-name $spName --query "appId" -o tsv
-#pim.karol@abcs.onmicrosoft.com
 az ad app owner add --id $appId --owner-object-id "08f93fac-ac50-4ee0-8edb-1ccb4e50530d"
 az ad sp create --id $appId
 # Assign the Service Principal, "Owner" RBAC on Subscription Level:-
-$subId = az account alias show --name $SubName --query "properties.subscriptionId" -o tsv
-# az role assignment create --assignee "$appId" --role "$rbac" --scope "/subscriptions/$subId" -o table
+$subId = az account subscription list --query "[?state=='Enabled' && displayName=='$SubName'].subscriptionId" -o tsv
+az role assignment create --assignee "$appId" --role "$rbac" --scope "/subscriptions/$subId" -o table
 
 # Set Default DevOps Organisation and Project:-
 az devops configure --defaults organization=$devopsOrg project=$DevopsProjectName -o table
-#OLD
-# az ad app federated-credential create --id $appId --parameters `
-#     "{\""name\"": \""devops\"", \""issuer\"": \""$issuer\"", \""subject\"": \""sc://$devopsOrgName/$DevopsProjectName/$spName\"", \""audiences\"": [\""api://AzureADTokenExchange\""]}" -o table
-#NEW
-az ad app federated-credential create --id $appId -o table --parameters @"
-    {
-        "name": "devops",
-        "issuer": "$issuer",
-        "subject": "sc://$devopsOrgName/$DevopsProjectName/$spName",
-        "audiences": ["api://AzureADTokenExchange"]
-    }
-"@ 
 
 # Create DevOps Service Connection with Federated Credentials:
 Write-Output "Creating service endpoint"
@@ -50,7 +36,7 @@ $body = ConvertTo-Json -Depth 10 @{
         scheme     = "WorkloadIdentityFederation"
         parameters = @{
             tenantid           = $tenantID
-            serviceprincipalid = $appId #$spiID
+            serviceprincipalid = $appId
         }
     }
     data                             = @{
@@ -70,5 +56,31 @@ $body = ConvertTo-Json -Depth 10 @{
     )
 }
     
-Invoke-RestMethod  -Method POST -Uri $uri -Headers @{ Authorization = "Bearer $token"; "Content-Type" = "application/json" } -Body $body
+$NewSe = Invoke-RestMethod  -Method POST -Uri $uri -Headers @{ Authorization = "Bearer $token"; "Content-Type" = "application/json" } -Body $body
+$Issuer = $NewSe.authorization.parameters.workloadIdentityFederationIssuer 
+$Subject = $NewSe.authorization.parameters.workloadIdentityFederationSubject 
 
+$app = az ad app federated-credential list --id $appId --query "[?name=='devops'].id" -o tsv
+
+if ($app) {
+    Write-Output "Federated credentials exist"
+}
+else {
+    $url = "https://graph.microsoft.com/v1.0/applications?`$filter=appId eq '$appId'"
+    $headers = "Content-type=application/json"
+    $ObjectId = az rest --method get --uri $url --headers $headers --query "value[0].id" -o tsv
+    if (!$ObjectId) {
+        Write-Error "Failed to retrieve Object ID for appId: $appId."
+        exit 1
+    }
+
+    $FedParameters = @{
+        name      = "devops"
+        issuer    = "$Issuer"
+        subject   = "$Subject"
+        audiences = @("api://AzureADTokenExchange")
+    } | ConvertTo-Json -Depth 10
+    $url = "https://graph.microsoft.com/v1.0/applications/$ObjectId/federatedIdentityCredentials"
+    $headers = "Content-type=application/json"
+    $FedParameters | az rest --method post --uri $url --headers $headers --body '@-'
+}
